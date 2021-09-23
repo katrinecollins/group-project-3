@@ -1,4 +1,4 @@
-//Fancy Titles https://patorjk.com/software/taag
+//Fancy Titles https://patorjk.com/software/taag/#p=display&f=Standard
 
 // __     __ _____  ____  _____  ___   ____    ____
 // \ \   / /| ____|/ ___||_   _|/ _ \ |  _ \  |___ \
@@ -9,9 +9,9 @@
 class Vector2 {
   x;
   y;
-  constructor(_x, _y) {
-    this.x = _x;
-    this.y = _y;
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
   }
 
   //   ____  _____   _   _____  ___  ____
@@ -119,6 +119,29 @@ class Vector2 {
     this.y /= _hypot;
   }
 }
+
+//    ___  ____      _ _____ ____ _____ 
+//   / _ \| __ )    | | ____/ ___|_   _|
+//  | | | |  _ \ _  | |  _|| |     | |  
+//  | |_| | |_) | |_| | |__| |___  | |  
+//   \___/|____/ \___/|_____\____| |_|  
+                                     
+class Object {
+    position; //Vector2
+    rotation; //Degrees
+    sprite;   //Image
+    constructor(position, rotation, sprite) {
+      this.position = position;
+      this.rotation = rotation;
+      this.sprite = new Image();
+      this.sprite.src = sprite;
+    }
+
+    static Instantiate(object, context){
+        context.drawImage(object.sprite, object.position.x, object.position.y)
+    }
+}
+
 
 //  ____   _   _  ____   _      ___   ____     __     __ _     ____   ____
 // |  _ \ | | | || __ ) | |    |_ _| / ___|    \ \   / // \   |  _ \ / ___|
