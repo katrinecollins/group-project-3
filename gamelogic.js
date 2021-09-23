@@ -120,28 +120,45 @@ class Vector2 {
   }
 }
 
-//    ___  ____      _ _____ ____ _____ 
+//    ___  ____      _ _____ ____ _____
 //   / _ \| __ )    | | ____/ ___|_   _|
-//  | | | |  _ \ _  | |  _|| |     | |  
-//  | |_| | |_) | |_| | |__| |___  | |  
-//   \___/|____/ \___/|_____\____| |_|  
-                                     
+//  | | | |  _ \ _  | |  _|| |     | |
+//  | |_| | |_) | |_| | |__| |___  | |
+//   \___/|____/ \___/|_____\____| |_|
+
 class Object {
-    position; //Vector2
-    rotation; //Degrees
-    sprite;   //Image
-    constructor(position, rotation, sprite) {
-      this.position = position;
-      this.rotation = rotation;
-      this.sprite = new Image();
-      this.sprite.src = sprite;
-    }
+  active = true; //Determines if its drawn
+  position = Vector2.Zero();
+  rotation = 0; //Degrees
+  size = new Vector2(50, 50); //In Pixels
+  sprite; //Image
+  constructor(position, rotation, size, sprite) {
+    this.position = position;
+    this.rotation = rotation;
+    this.size = size;
+    this.sprite = new Image();
+    this.sprite.src = sprite;
+  }
 
-    static Instantiate(object, context){
-        context.drawImage(object.sprite, object.position.x, object.position.y)
+  //Adds object to the object array, allowing an object to exist without being rendered, use case is cloning an object
+  static Instantiate(object) {
+    objectArray.push(object);
+    return object;
+  }
+
+  //Renders The Object on the Canvas
+  DrawObject(context) {
+    if (this.active) {
+      context.drawImage(
+        this.sprite,
+        this.position.x,
+        this.position.y,
+        this.size.x,
+        this.size.y
+      );
     }
+  }
 }
-
 
 //  ____   _   _  ____   _      ___   ____     __     __ _     ____   ____
 // |  _ \ | | | || __ ) | |    |_ _| / ___|    \ \   / // \   |  _ \ / ___|
@@ -152,13 +169,13 @@ class Object {
 //Window
 let gameWindow;
 let ctx;
-
+//Objects
+let objectArray = [];
 //Player
+let player
 //Input
 let input = Vector2.Zero();
 let playerMovement = Vector2.Zero();
-//Transform
-let playerPosition = new Vector2(10, 10);
 
 //      ____     _     __  __  _____       _      ___    ___   ____
 //     / ___|   / \   |  \/  || ____|     | |    / _ \  / _ \ |  _ \
@@ -177,7 +194,6 @@ window.onload = function () {
 
 //Called When Game Starts
 function Start() {
-  console.log("Start");
   //Add Key Press Event Listeners
   document.addEventListener("keydown", () => {
     inputHandler(event, true);
@@ -185,23 +201,53 @@ function Start() {
   document.addEventListener("keyup", () => {
     inputHandler(event, false);
   });
+
+  player = Object.Instantiate(
+    new Object(
+      new Vector2(500, 500),
+      0,
+      new Vector2(20, 20),
+      "https://via.placeholder.com/20"
+    )
+  );
+
+  //DEBUG CREATE OBJECTS
+  Object.Instantiate(
+    new Object(
+      new Vector2(100, 100),
+      0,
+      new Vector2(100, 100),
+      "https://via.placeholder.com/100"
+    )
+  );
+  Object.Instantiate(
+    new Object(
+      new Vector2(300, 300),
+      0,
+      new Vector2(200, 200),
+      "https://via.placeholder.com/200"
+    )
+  );
 }
 
 //Called When Game Updates
 function Update() {
-  if (input.x == Vector2.Zero().x && input.y == Vector2.Zero().y){
-    playerMovement.Divide(1.015)
+  if (input.x == Vector2.Zero().x && input.y == Vector2.Zero().y) {
+    playerMovement.Divide(1.015);
   }
   playerMovement.Add(input.Times(0.2));
   playerMovement.Clamp(-5, 5);
-  playerPosition.Add(playerMovement);
-  //console.log(playerMovement);
-  playerPosition.Clamp(0, gameWindow.width);
+  player.position.Add(playerMovement);
+  player.position.Clamp(0, gameWindow.width);
 
   ctx.clearRect(0, 0, gameWindow.width, gameWindow.height);
-  ctx.beginPath();
-  ctx.arc(playerPosition.x, playerPosition.y, 10, 0, 2 * Math.PI);
-  ctx.stroke();
+
+
+  
+  //Draw All Objects
+  objectArray.forEach((object) => {
+    object.DrawObject(ctx);
+  });
 }
 
 //Called When Key is Pressed
