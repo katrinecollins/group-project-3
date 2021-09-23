@@ -173,6 +173,13 @@ class Object {
       Math.cos(this.rotation * (Math.PI / 180))
     );
   }
+
+  Right() {
+    return new Vector2(
+        Math.sin(this.rotation + 90 * (Math.PI / 180)),
+        Math.cos(this.rotation + 90 * (Math.PI / 180))
+      );
+  }
 }
 
 //  ____   _   _  ____   _      ___   ____     __     __ _     ____   ____
@@ -251,7 +258,7 @@ function Update() {
   playerMovement.Divide(1.02);
   //Player Acceleration
   let forward = player.Forward();
-  playerMovement.Add(forward.Times(input.y * .5));
+  playerMovement.Add(forward.Times(input.y * .2));
   playerMovement.Clamp(-5, 5);
   player.position.Add(playerMovement);
   player.position.Clamp(0, gameWindow.width);
