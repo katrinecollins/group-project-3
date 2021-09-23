@@ -148,15 +148,30 @@ class Object {
 
   //Renders The Object on the Canvas
   DrawObject(context) {
+    //WHY IS THE ONLY WAY TO ROATE AN IMAGE TO ROTATE THE CANVAS DRAW THE IMAGE THEN ROTATE THE CANVAS BACK
+    //I NEED TO DO TRIG AND IT MAKES ME ANGRY
+
+    //Time to calculate new posx and posy
+
     if (this.active) {
-      context.drawImage(
-        this.sprite,
-        this.position.x,
-        this.position.y,
-        this.size.x,
-        this.size.y
-      );
+      let hypot = Math.hypot(this.position.x, this.position.y);
+      let angleA = Math.atan(this.position.y / this.position.x);
+      let angleB = angleA + this.rotation * (Math.PI / 180);
+      let x = Math.sin(angleB) * hypot;
+      let y = Math.cos(angleB) * hypot;
+
+      context.rotate((this.rotation * Math.PI) / 180);
+      context.drawImage(this.sprite, x - this.size.x/2, y - this.size.y/2, this.size.x, this.size.y);
+      context.rotate((-this.rotation * Math.PI) / 180);
     }
+  }
+
+  //Returns the direction the object is facing
+  Forward() {
+    return new Vector2(
+      Math.sin(this.rotation * (Math.PI / 180)),
+      Math.cos(this.rotation * (Math.PI / 180))
+    );
   }
 }
 
@@ -172,7 +187,7 @@ let ctx;
 //Objects
 let objectArray = [];
 //Player
-let player
+let player;
 //Input
 let input = Vector2.Zero();
 let playerMovement = Vector2.Zero();
@@ -207,14 +222,14 @@ function Start() {
       new Vector2(500, 500),
       0,
       new Vector2(20, 20),
-      "https://via.placeholder.com/20"
+      "https://via.placeholder.com/100"
     )
   );
 
   //DEBUG CREATE OBJECTS
   Object.Instantiate(
     new Object(
-      new Vector2(100, 100),
+      new Vector2(1, 1),
       0,
       new Vector2(100, 100),
       "https://via.placeholder.com/100"
@@ -232,18 +247,17 @@ function Start() {
 
 //Called When Game Updates
 function Update() {
-  if (input.x == Vector2.Zero().x && input.y == Vector2.Zero().y) {
-    playerMovement.Divide(1.015);
-  }
-  playerMovement.Add(input.Times(0.2));
+  //Player Drag... In Space?
+  playerMovement.Divide(1.02);
+  //Player Acceleration
+  let forward = player.Forward();
+  playerMovement.Add(forward.Times(input.y * .5));
   playerMovement.Clamp(-5, 5);
   player.position.Add(playerMovement);
   player.position.Clamp(0, gameWindow.width);
+  player.rotation += input.x * 5;
 
   ctx.clearRect(0, 0, gameWindow.width, gameWindow.height);
-
-
-  
   //Draw All Objects
   objectArray.forEach((object) => {
     object.DrawObject(ctx);
