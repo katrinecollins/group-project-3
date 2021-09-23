@@ -1,3 +1,5 @@
+
+
 //Fancy Titles https://patorjk.com/software/taag/#p=display&f=Standard
 
 // __     __ _____  ____  _____  ___   ____    ____
@@ -127,6 +129,8 @@ class Vector2 {
 //   \___/|____/ \___/|_____\____| |_|
 
 class Object {
+  id; //Object Id
+  createtime; //Time Object Created
   active = true; //Determines if its drawn
   position = Vector2.Zero();
   rotation = 0; //Degrees
@@ -141,9 +145,33 @@ class Object {
   }
 
   //Adds object to the object array, allowing an object to exist without being rendered, use case is cloning an object
-  static Instantiate(object) {
-    objectArray.push(object);
-    return object;
+  Instantiate() {
+    return objectArray.push(this);
+  }
+
+  InstantiateTimer(timeout) {
+    this.id = tempObjectArray.push(this);
+    let interval = setTimeout(function(id){
+      console.log(objectArray.length)
+      tempObjectArray.reverse()
+      tempObjectArray.pop()
+      tempObjectArray.reverse()
+      for(let i = 0; i < tempObjectArray.length; i++){
+        tempObjectArray[i].id = i;
+      }
+    },timeout, this.id)
+
+
+    // console.log(this.id)
+    // setTimeout(function(){
+    //     objectArray.pop(this.id)
+    // },timeout)
+
+    //objectArray.pop(objectid)
+    //   setTimeout(() => {
+
+    //     objectArray.pop(objectid) }, timeout);
+    //   return object;
   }
 
   //Renders The Object on the Canvas
@@ -161,7 +189,13 @@ class Object {
       let y = Math.cos(angleB) * hypot;
 
       context.rotate((this.rotation * Math.PI) / 180);
-      context.drawImage(this.sprite, x - this.size.x/2, y - this.size.y/2, this.size.x, this.size.y);
+      context.drawImage(
+        this.sprite,
+        x - this.size.x / 2,
+        y - this.size.y / 2,
+        this.size.x,
+        this.size.y
+      );
       context.rotate((-this.rotation * Math.PI) / 180);
     }
   }
@@ -176,9 +210,9 @@ class Object {
 
   Right() {
     return new Vector2(
-        Math.sin(this.rotation + 90 * (Math.PI / 180)),
-        Math.cos(this.rotation + 90 * (Math.PI / 180))
-      );
+      Math.sin(this.rotation + 90 * (Math.PI / 180)),
+      Math.cos(this.rotation + 90 * (Math.PI / 180))
+    );
   }
 }
 
@@ -193,6 +227,7 @@ let gameWindow;
 let ctx;
 //Objects
 let objectArray = [];
+let tempObjectArray = [];
 //Player
 let player;
 //Input
@@ -224,32 +259,13 @@ function Start() {
     inputHandler(event, false);
   });
 
-  player = Object.Instantiate(
-    new Object(
-      new Vector2(500, 500),
-      0,
-      new Vector2(20, 20),
-      "https://via.placeholder.com/100"
-    )
+  player = new Object(
+    new Vector2(500, 500),
+    0,
+    new Vector2(20, 20),
+    "https://via.placeholder.com/100"
   );
-
-  //DEBUG CREATE OBJECTS
-  Object.Instantiate(
-    new Object(
-      new Vector2(1, 1),
-      0,
-      new Vector2(100, 100),
-      "https://via.placeholder.com/100"
-    )
-  );
-  Object.Instantiate(
-    new Object(
-      new Vector2(300, 300),
-      0,
-      new Vector2(200, 200),
-      "https://via.placeholder.com/200"
-    )
-  );
+  player.Instantiate();
 }
 
 //Called When Game Updates
@@ -258,7 +274,7 @@ function Update() {
   playerMovement.Divide(1.02);
   //Player Acceleration
   let forward = player.Forward();
-  playerMovement.Add(forward.Times(input.y * .2));
+  playerMovement.Add(forward.Times(input.y * 0.2));
   playerMovement.Clamp(-5, 5);
   player.position.Add(playerMovement);
   player.position.Clamp(0, gameWindow.width);
@@ -267,6 +283,9 @@ function Update() {
   ctx.clearRect(0, 0, gameWindow.width, gameWindow.height);
   //Draw All Objects
   objectArray.forEach((object) => {
+    object.DrawObject(ctx);
+  });
+  tempObjectArray.forEach((object) => {
     object.DrawObject(ctx);
   });
 }
@@ -311,6 +330,18 @@ function inputHandler(event, keyPressed) {
         input.y = 1;
       } else if (input.y == 1 && !keyPressed) {
         input.y = 0;
+      }
+      break;
+
+    case 32: // Space Bar
+      //Shoot
+      if (keyPressed) {
+        new Object(
+          new Vector2(player.position.x, player.position.y),
+          0,
+          new Vector2(100, 100),
+          "https://via.placeholder.com/100"
+        ).InstantiateTimer(1000);
       }
       break;
 
