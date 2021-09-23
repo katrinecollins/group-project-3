@@ -151,27 +151,14 @@ class Object {
 
   InstantiateTimer(timeout) {
     this.id = tempObjectArray.push(this);
-    let interval = setTimeout(function(id){
-      console.log(objectArray.length)
+    setTimeout(function(){
       tempObjectArray.reverse()
       tempObjectArray.pop()
       tempObjectArray.reverse()
       for(let i = 0; i < tempObjectArray.length; i++){
         tempObjectArray[i].id = i;
       }
-    },timeout, this.id)
-
-
-    // console.log(this.id)
-    // setTimeout(function(){
-    //     objectArray.pop(this.id)
-    // },timeout)
-
-    //objectArray.pop(objectid)
-    //   setTimeout(() => {
-
-    //     objectArray.pop(objectid) }, timeout);
-    //   return object;
+    },timeout)
   }
 
   //Renders The Object on the Canvas
@@ -349,6 +336,4 @@ function inputHandler(event, keyPressed) {
       console.log("Unlogged Key Pressed!  Code: " + event.keyCode);
       break;
   }
-
-  //console.log(event.keyCode + ", " + keyPressed);
 }
