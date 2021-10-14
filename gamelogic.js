@@ -325,7 +325,7 @@ function inputHandler(event, keyPressed) {
       if (keyPressed) {
         new Object(
           new Vector2(player.position.x, player.position.y),
-          0,
+          player.rotation - 90,
           new Vector2(100, 100),
           "https://via.placeholder.com/100"
         ).InstantiateTimer(1000);
