@@ -142,25 +142,25 @@ class Object {
     this.size = size;
     this.sprite = new Image();
     this.sprite.src = sprite;
-  }
+  }                                                                         
 
   //Adds object to the object array, allowing an object to exist without being rendered, use case is cloning an object
   Instantiate() {
-    return objectArray.push(this);
+    return playerArray.push(this);
   }
 
+  //Creates object with a lifetime
   InstantiateTimer(timeout) {
-    this.id = tempObjectArray.push(this);
+    this.id = playerArray.push(this);
     setTimeout(function(){
-      tempObjectArray.reverse()
-      tempObjectArray.pop()
-      tempObjectArray.reverse()
-      for(let i = 0; i < tempObjectArray.length; i++){
-        tempObjectArray[i].id = i;
+      playerArray.reverse()
+      playerArray.pop()
+      playerArray.reverse()
+      for(let i = 0; i < playerArray.length; i++){
+        playerArray[i].id = i;
       }
     },timeout)
   }
-
   //Renders The Object on the Canvas
   DrawObject(context) {
     //WHY IS THE ONLY WAY TO ROATE AN IMAGE TO ROTATE THE CANVAS DRAW THE IMAGE THEN ROTATE THE CANVAS BACK
@@ -195,6 +195,7 @@ class Object {
     );
   }
 
+  //Returns the direction the object is facing then rotated 90 degrees
   Right() {
     return new Vector2(
       Math.sin(this.rotation + 90 * (Math.PI / 180)),
@@ -203,20 +204,86 @@ class Object {
   }
 }
 
-//  ____   _   _  ____   _      ___   ____     __     __ _     ____   ____
-// |  _ \ | | | || __ ) | |    |_ _| / ___|    \ \   / // \   |  _ \ / ___|
-// | |_) || | | ||  _ \ | |     | | | |         \ \ / // _ \  | |_) |\___ \
-// |  __/ | |_| || |_) || |___  | | | |___       \ V // ___ \ |  _ <  ___) |
-// |_|     \___/ |____/ |_____||___| \____|       \_//_/   \_\|_| \_\|____/
+//  ____  ____   ___      _ _____ ____ _____ ___    _    _     
+// |  _ \|  _ \ / _ \    | | ____/ ___|_   _|_ _|  / \  | |    
+// | |_) | |_) | | | |_  | |  _|| |     | |  | |  / _ \ | |    
+// |  __/|  _ <| |_| | |_| | |__| |___  | |  | | / ___ \| |___ 
+// |_|   |_| \_\\___/ \___/|_____\____| |_| |___/_/   \_\_____|
+
+class Projectial extends Object {
+  speed;          //Stores the speed to calculate movement of projectial
+  detectCollison; //Function to detect collision with virus
+  constructor(position, rotation, size, sprite, speed, detectCollison) {
+    super(position, rotation, size, sprite)
+    this.speed = speed;
+  }
+
+  //Adds object to the object array, allowing an object to exist without being rendered, use case is cloning an object
+  Instantiate() {
+    return projectialArray.push(this);
+  }
+
+  //Creates object with a lifetime
+  InstantiateTimer(timeout) {
+    this.id = projectialArray.push(this);
+    setTimeout(function(){
+      projectialArray.reverse()
+      projectialArray.pop()
+      projectialArray.reverse()
+      for(let i = 0; i < projectialArray.length; i++){
+        projectialArray[i].id = i;
+      }
+    },timeout)
+  }
+}
+
+// __     _____ ____  _   _ ____  
+// \ \   / /_ _|  _ \| | | / ___| 
+//  \ \ / / | || |_) | | | \___ \ 
+//   \ V /  | ||  _ <| |_| |___) |
+//    \_/  |___|_| \_\\___/|____/                            
+
+class Virus extends Object {
+  speed;          //Stores the speed to calculate movement of projectial
+  constructor(position, rotation, size, sprite, speed, detectCollison) {
+    super(position, rotation, size, sprite)
+    this.speed = speed;
+  }
+
+  //Adds object to the object array, allowing an object to exist without being rendered, use case is cloning an object
+  Instantiate() {
+    return virusArray.push(this);
+  }
+
+  //Creates object with a lifetime
+  InstantiateTimer(timeout) {
+    this.id = virusArray.push(this);
+    setTimeout(function(){
+      virusArray.reverse()
+      virusArray.pop()
+      virusArray.reverse()
+      for(let i = 0; i < virusArray.length; i++){
+        virusArray[i].id = i;
+      }
+    },timeout)
+  }
+}                                            
 
 //Window
 let gameWindow;
 let ctx;
 //Objects
-let objectArray = [];
-let tempObjectArray = [];
+let playerArray = [];
+let projectialArray = [];
+let virusArray = [];
 //Player
-let player;
+const player = new Object(
+  new Vector2(500, 500), //Start Pos
+  0, //Rotation
+  new Vector2(40, 60), //Size
+  "https://upload.wikimedia.org/wikipedia/commons/6/67/Medical_doctor.png", //Sprite
+  playerArray, //Player Render Batch
+);
 //Input
 let input = Vector2.Zero();
 let playerMovement = Vector2.Zero();
@@ -234,6 +301,7 @@ window.onload = function () {
   ctx = gameWindow.getContext("2d");
   Start();
   setInterval(Update, 1000 / framerate);
+  setInterval(SpawnVirus, 1000);
 };
 
 //Called When Game Starts
@@ -246,12 +314,6 @@ function Start() {
     inputHandler(event, false);
   });
 
-  player = new Object(
-    new Vector2(500, 500),
-    0,
-    new Vector2(20, 20),
-    "https://via.placeholder.com/100"
-  );
   player.Instantiate();
 }
 
@@ -260,20 +322,27 @@ function Update() {
   //Player Drag... In Space?
   playerMovement.Divide(1.02);
   //Player Acceleration
-  let forward = player.Forward();
-  playerMovement.Add(forward.Times(input.y * 0.2));
+  playerMovement.Add(player.Forward().Times(input.y * 0.2));
   playerMovement.Clamp(-5, 5);
   player.position.Add(playerMovement);
   player.position.Clamp(0, gameWindow.width);
   player.rotation += input.x * 5;
 
   ctx.clearRect(0, 0, gameWindow.width, gameWindow.height);
+
+  //console.log(projectialArray)
+
   //Draw All Objects
-  objectArray.forEach((object) => {
-    object.DrawObject(ctx);
+  playerArray.forEach((player) => {
+    player.DrawObject(ctx);
   });
-  tempObjectArray.forEach((object) => {
-    object.DrawObject(ctx);
+  projectialArray.forEach((projectial) => {
+    projectial.position.Add(projectial.Forward().Times(projectial.speed))
+    projectial.DrawObject(ctx);
+  });
+  virusArray.forEach((virus) => {
+    virus.position.Add(virus.Forward().Times(virus.speed))
+    virus.DrawObject(ctx);
   });
 }
 
@@ -323,11 +392,13 @@ function inputHandler(event, keyPressed) {
     case 32: // Space Bar
       //Shoot
       if (keyPressed) {
-        new Object(
+        new Projectial (
           new Vector2(player.position.x, player.position.y),
-          player.rotation - 90,
-          new Vector2(100, 100),
-          "https://via.placeholder.com/100"
+          player.rotation -180,
+          new Vector2(30, 30),
+          "https://pngimg.com/uploads/syringe/syringe_PNG12393.png",
+          20,
+          () => {}
         ).InstantiateTimer(1000);
       }
       break;
@@ -336,4 +407,20 @@ function inputHandler(event, keyPressed) {
       console.log("Unlogged Key Pressed!  Code: " + event.keyCode);
       break;
   }
+}
+
+function SpawnVirus() {
+  //Randomly generate spawn point and rotation
+  let angle = Math.random() * 360
+  let position = new Vector2(
+    Math.sin(angle * (Math.PI / 180)),
+    Math.cos(angle * (Math.PI / 180))).Times(gameWindow.width / 2).Plus(new Vector2((gameWindow.width / 2), (gameWindow.height / 2)))
+
+  new Virus (
+    position,
+    angle - 180,
+    new Vector2(100, 100),
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Virus_green.svg/450px-Virus_green.svg.png",
+    2,
+  ).InstantiateTimer(10000);
 }
