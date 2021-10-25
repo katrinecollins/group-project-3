@@ -1,14 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Leaderboard = ({ leaderboardEntries }) => {
+const Highscores = ({ leaderboardEntries }) => {
   if (!leaderboardEntries.length) {
-    return <h3>No leaderboardEntries Yet</h3>;
+    return <h3>No Highscores Yet</h3>;
   }
 
   return (
     <div>
-      <h3>{title}</h3>
       {leaderboardEntries &&
         leaderboardEntries.map(entry => (
             <div></div>
@@ -17,4 +16,4 @@ const Leaderboard = ({ leaderboardEntries }) => {
   );
 };
 
-export default Leaderboard;
+export default Highscores;
