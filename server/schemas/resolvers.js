@@ -1,6 +1,7 @@
 const { AuthenticationError } = require('apollo-server-express');
 const { User, Thought } = require('../models');
 const { signToken } = require('../utils/auth');
+const axios = require("axios").default;
 
 const resolvers = {
   Query: {
@@ -34,6 +35,35 @@ const resolvers = {
     },
     thought: async (parent, { _id }) => {
       return Thought.findOne({ _id });
+    },
+
+    covidData: async (parent, args) => {
+
+      var options = {
+        method: 'GET',
+        url: 'https://covid-193.p.rapidapi.com/history',
+        params: { country: 'usa' },
+        headers: {
+          'x-rapidapi-host': 'covid-193.p.rapidapi.com',
+          'x-rapidapi-key': 'cbc9fd7adamsh96d9cb7275356fdp1c3be7jsnb042cd7c36b8'
+        }
+      };
+
+      const response = await axios.request(options);
+      const data = response.data;
+
+      console.log('Sending covid data...')
+
+      return {
+        country: data.response[0].country,
+        time: data.response[0].time,
+        cases_new: data.response[0].cases.new,
+        cases_recovered: data.response[0].cases.recovered,
+        cases_total: data.response[0].cases.total,
+        deaths_new: data.response[0].deaths.new,
+        deaths_total: data.response[0].deaths.total,
+      };
+
     }
   },
 

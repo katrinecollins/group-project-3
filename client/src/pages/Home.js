@@ -5,17 +5,33 @@ import FriendList from '../components/FriendList';
 
 import Auth from '../utils/auth';
 import { useQuery } from '@apollo/client';
-import { QUERY_THOUGHTS, QUERY_ME_BASIC } from '../utils/queries';
+import { QUERY_THOUGHTS, QUERY_ME_BASIC, QUERY_COVID_HISTORY } from '../utils/queries';
 
 const Home = () => {
   const { loading, data } = useQuery(QUERY_THOUGHTS);
   const { data: userData } = useQuery(QUERY_ME_BASIC);
+  const { loading2, data2, error2 } = useQuery(QUERY_COVID_HISTORY);
   const thoughts = data?.thoughts || [];
+  const covidData = data2?.country || {
+    
+  };
+
+  console.log(data2)
 
   const loggedIn = Auth.loggedIn();
 
   return (
     <main>
+      {/* TEST COVID DATA */}
+      {loading2 || error2 ? (
+            <div>Loading Covid Data...</div>
+          ) : (
+            <div>
+            <h1>{covidData.time}</h1>
+            </div>
+          )}
+     
+      {/* END TEST */}
       <div className="flex-row justify-space-between">
         {loggedIn && (
           <div className="col-12 mb-3">

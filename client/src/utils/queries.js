@@ -98,3 +98,17 @@ export const QUERY_ME_BASIC = gql`
     }
   }
 `;
+
+export const QUERY_COVID_HISTORY = gql`
+  {
+    covidData {
+      country
+      time
+      cases_new
+      cases_recovered
+      cases_total
+      deaths_new
+      deaths_total
+    }
+  }
+`;

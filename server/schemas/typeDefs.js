@@ -31,12 +31,23 @@ const typeDefs = gql`
     user: User
   }
 
+  type CovidData {
+    country: String!
+    time: String!
+    cases_new: String!
+    cases_recovered: Int
+    cases_total: Int
+    deaths_new: String!
+    deaths_total: Int
+  }
+
   type Query {
     me: User
     users: [User]
     user(username: String!): User
     thoughts(username: String): [Thought]
     thought(_id: ID!): Thought
+    covidData: CovidData!
   }
 
   type Mutation {
