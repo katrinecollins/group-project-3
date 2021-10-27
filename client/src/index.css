@@ -31,7 +31,7 @@ body {
   line-height: 1.5;
   font-size: 20px;
   color: var(--dark);
-  background-color: #f3fffee1;
+  background-color: #000000;
 }
 
 h1,
@@ -48,6 +48,7 @@ h6 {
 
 h1 {
   font-size: 2.25rem;
+  color: lime;
 }
 
 h2 {
@@ -76,12 +77,12 @@ p {
 }
 
 a {
-  color: var(--dark);
+  color: white;
   text-decoration: none;
 }
 
 a:visited {
-  color: inherit;
+  color: white;
 }
 
 nav {
@@ -96,7 +97,7 @@ nav a {
 }
 
 nav a:hover {
-  color: var(--secondary);
+  color: lime;
   background-color: var(--dark);
 }
 
@@ -786,7 +787,7 @@ nav a:hover {
 }
 
 .bg-secondary {
-  background-color: var(--secondary);
+  background-color: #000000;
 }
 
 .bg-tertiary {
